@@ -43,7 +43,11 @@ const personaSchema = new mongoose.Schema({
 });
 const Persona = mongoose.model('Persona', personaSchema);
 
-app.use(express.static('public'));
+const path = require('path');
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 // --- RUTAS DE CANDIDATAS ---
 
