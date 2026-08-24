@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Miss 2026 - Votación Oficial</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:ital,wght@0,500;0,700;1,500;1,700&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --gold: #dfb347;
+            --gold-light: #f3d88b;
+            --bg-dark: #030712;
+            --card-bg: #141418;
+            --border-color: rgba(223, 179, 71, 0.2);
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: radial-gradient(circle at 50% 20%, #1a365d 0%, #09101f 40%, #020408 80%, #000000 100%);
+            background-attachment: fixed;
+            color: #f1f1f3;
+            margin: 0; padding: 0;
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 10%, rgba(30, 144, 255, 0.15) 0%, transparent 40%),
+                        radial-gradient(circle at 80% 80%, rgba(223, 179, 71, 0.08) 0%, transparent 40%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        header, .container, .admin-float-btn {
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 20px;
+            background: radial-gradient(circle at center, rgba(26, 54, 93, 0.6) 0%, rgba(5, 10, 20, 0.9) 80%);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            gap: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(30, 144, 255, 0.1);
+        }
+
+        .logo-container {
+            position: relative;
+            width: 130px;
+            height: 130px;
+            margin: 0 auto 10px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeInDown 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .logo-container::before {
+            content: '';
+            position: absolute;
+            inset: -8px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, transparent, var(--gold), transparent, var(--gold-light), transparent);
+            animation: rotateGlow 6s linear infinite;
+            z-index: 1;
+            opacity: 0.8;
+            filter: blur(4px);
+        }
+
+        .logo-img {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--gold);
+            z-index: 2;
+            box-shadow: 0 0 25px rgba(223, 179, 71, 0.4);
+            animation: floatLogo 4s ease-in-out infinite, pulseGlow 3s ease-in-out infinite;
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .logo-img:hover {
+            transform: scale(1.1) rotate(3deg);
+            box-shadow: 0 0 40px rgba(243, 216, 139, 0.8);
+        }
+
+        @keyframes floatLogo {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(223, 179, 71, 0.4); }
+            50% { box-shadow: 0 0 35px rgba(223, 179, 71, 0.7), inset 0 0 15px rgba(243, 216, 139, 0.5); }
+        }
+
+        @keyframes rotateGlow {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeInDown {
+            0% { opacity: 0; transform: translateY(-30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .header-content {
+            text-align: center;
+            width: 100%;
+        }
+        header h1 {
+            font-family: 'Cinzel', serif;
+            font-style: italic;
+            color: var(--gold);
+            font-size: clamp(2rem, 5vw, 2.8rem);
+            margin: 0 0 5px 0;
+            letter-spacing: 2px;
+            animation: fadeInDown 1.4s ease forwards;
+        }
+        
+        .header-slogan {
+            color: var(--gold-light);
+            font-family: 'Cinzel', serif;
+            font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+            font-style: italic;
+            letter-spacing: 3px;
+            margin: 8px 0 5px 0;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(223, 179, 71, 0.4);
+            animation: fadeInDown 1.5s ease forwards;
+        }
+
+        header p.header-subtitle {
+            color: #9a9a9f;
+            font-size: clamp(0.75rem, 1.8vw, 0.9rem);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin: 0;
+            animation: fadeInDown 1.6s ease forwards;
+        }
+        .acciones-derecha {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            max-width: 320px;
+        }
+        
+        /* Oculto por defecto para usuarios normales */
+        .btn-agregar-cand {
+            background: transparent;
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: 0.3s;
+            width: 100%;
+            display: none; 
+        }
+        .btn-agregar-cand:hover {
+            background: var(--gold);
+            color: #000;
+            box-shadow: 0 0 15px rgba(223, 179, 71, 0.5);
+        }
+
+        .admin-trigger-btn {
+            background: rgba(20, 20, 24, 0.8);
+            border: 1px dashed var(--gold);
+            color: var(--gold-light);
+            padding: 6px 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: 0.3s;
+            margin-top: 5px;
+        }
+        .admin-trigger-btn:hover {
+            background: var(--gold);
+            color: #000;
+        }
+
+        .buscador-esquina {
+            display: flex;
+            gap: 5px;
+            background: rgba(20, 20, 24, 0.9);
+            padding: 5px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .buscador-esquina input {
+            padding: 8px 10px;
+            background: #1e1e24;
+            border: 1px solid #333;
+            color: white;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            flex: 1;
+            min-width: 0;
+        }
+        .buscador-esquina button {
+            padding: 8px 14px;
+            background: var(--gold);
+            border: none;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            color: #000;
+            font-size: 0.85rem;
+            transition: 0.2s;
+        }
+        .buscador-esquina button:hover {
+            background: var(--gold-light);
+        }
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h2.section-title {
+            font-family: 'Cinzel', serif;
+            font-style: italic;
+            color: var(--gold);
+            text-align: center;
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            margin-bottom: 30px;
+            text-shadow: 0 0 15px rgba(223, 179, 71, 0.3);
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 280px));
+            justify-content: center;
+            gap: 25px;
+            width: 100%;
+            max-width: 1000px;
+        }
+        .card {
+            background-color: rgba(20, 20, 24, 0.95);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            border: 1px solid var(--border-color);
+            transition: all 0.4s ease;
+            display: flex;
+            flex-direction: column;
+            width: 280px;
+            margin: 0 auto;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: var(--gold);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8), 0 0 20px rgba(30, 144, 255, 0.2);
+        }
+        .card img {
+            width: 100%;
+            height: 350px;
+            object-fit: cover;
+            object-position: top center;
+        }
+        .card-content {
+            padding: 20px;
+            text-align: center;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .card-content h3 {
+            margin: 0 0 5px 0;
+            font-family: 'Cinzel', serif;
+            color: var(--gold);
+            font-size: 1.2rem;
+        }
+        .social-tag {
+            font-size: 0.8rem;
+            color: var(--gold);
+            margin-bottom: 10px;
+            display: inline-block;
+            text-decoration: none;
+            transition: 0.2s;
+        }
+        .social-tag:hover {
+            color: var(--gold-light);
+            text-decoration: underline;
+        }
+        .card-content p {
+            font-size: 0.85rem;
+            color: #b3b3b8;
+            line-height: 1.5;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .btn-votar {
+            background: linear-gradient(135deg, var(--gold), #b38f2b);
+            color: #000;
+            border: none;
+            padding: 10px 25px;
+            font-weight: 600;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            width: 100%;
+        }
+        .btn-votar:hover {
+            background: linear-gradient(135deg, var(--gold-light), var(--gold));
+            box-shadow: 0 0 15px rgba(223, 179, 71, 0.6);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            justify-content: center; align-items: center;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+        .modal-content {
+            background: #141418;
+            padding: 25px;
+            border-radius: 20px;
+            border: 1px solid var(--gold);
+            width: 100%; max-width: 400px;
+            text-align: center;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-sizing: border-box;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.9), 0 0 15px rgba(223, 179, 71, 0.2);
+        }
+        .modal-content h3 {
+            font-family: 'Cinzel', serif;
+            color: var(--gold);
+            margin-top: 0;
+        }
+        .modal-content input, .modal-content select {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            background: #1e1e24;
+            border: 1px solid #333;
+            color: white;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 0.9rem;
+        }
+        .modal-content label {
+            display: block;
+            text-align: left;
+            font-size: 0.8rem;
+            color: #aaa;
+            margin-top: 8px;
+        }
+        .btn-enviar {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--gold), #b38f2b);
+            border: none; font-weight: bold;
+            border-radius: 8px; cursor: pointer; color: #000;
+            margin-top: 15px; text-transform: uppercase;
+            transition: 0.2s;
+        }
+        .btn-enviar:hover {
+            background: linear-gradient(135deg, var(--gold-light), var(--gold));
+        }
+        .btn-cerrar {
+            background: transparent; border: none;
+            color: #888; margin-top: 15px; cursor: pointer;
+            text-decoration: underline;
+        }
+        .btn-cerrar:hover {
+            color: #fff;
+        }
+        .mensaje-modal { margin-top: 15px; color: var(--gold); font-size: 0.9rem; }
+        
+        #resultadoBusqueda {
+            width: 100%;
+            max-width: 320px;
+            background: #141418;
+            border: 1px solid var(--gold);
+            border-radius: 10px;
+            padding: 10px;
+            z-index: 100;
+            max-height: 250px;
+            overflow-y: auto;
+            text-align: left;
+            display: none;
+            box-sizing: border-box;
+        }
+
+        @media (min-width: 768px) {
+            header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                padding: 40px 30px;
+            }
+            .header-content {
+                text-align: left;
+                flex: 1;
+                display: flex;
+                align-items: center;
+                gap: 25px;
+            }
+            .logo-container {
+                margin: 0;
+            }
+            .acciones-derecha {
+                position: absolute;
+                right: 30px;
+                top: 30px;
+                align-items: flex-end;
+            }
+            .btn-agregar-cand {
+                width: auto;
+            }
+            .buscador-esquina {
+                width: 250px;
+            }
+            #resultadoBusqueda {
+                position: absolute;
+                right: 30px;
+                top: 120px;
+                width: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-content">
+            <div class="logo-container">
+                <img src="NSSE.png" alt="Logo Miss Universo 2026" class="logo-img">
+            </div>
+            <div>
+                <h1>Miss 2026</h1>
+                <div class="header-slogan">Una plataforma, muchas candidatas, una elección</div>
+                <p class="header-subtitle">Sitio Oficial de Votación</p>
+            </div>
+        </div>
+        
+        <div class="acciones-derecha">
+            <!-- Botón protegido que solo aparece al autenticarse -->
+            <button id="btnRegistrarCand" class="btn-agregar-cand" onclick="abrirModalCandidata()">+ Registrar Nueva Candidata</button>
+            
+            <!-- Botón discreto para entrenadores/admin -->
+            <button class="admin-trigger-btn" onclick="solicitarAccesoAdmin()">🔒 Acceso Admin</button>
+
+            <div class="buscador-esquina">
+                <input type="text" id="busquedaNombre" placeholder="Escribe un nombre..." onkeyup="if(event.key === 'Enter') buscarVotos()">
+                <button onclick="buscarVotos()">Buscar</button>
+            </div>
+            
+            <div id="resultadoBusqueda"></div>
+        </div>
+    </header>
+
+    <div class="container">
+        <h2 class="section-title">Candidatas Oficiales</h2>
+        <div class="grid" id="gridCandidatas">
+            <p style="text-align: center; color: #777; grid-column: 1/-1;">Cargando candidatas desde la base de datos...</p>
+        </div>
+    </div>
+
+    <!-- MODAL VOTOS -->
+    <div id="seccion-registro" class="modal">
+        <div class="modal-content">
+            <h3 id="titulo-candidata">Votar</h3>
+            <p style="color: #aaa; font-size: 0.9rem;">Ingresa tus datos para registrar tu voto.</p>
+            <input type="text" id="nombreVotante" placeholder="Tu Nombre Completo">
+            <input type="email" id="correoVotante" placeholder="Tu Correo Electrónico">
+            <button class="btn-enviar" onclick="enviarVoto()">Confirmar Voto</button>
+            <br>
+            <button class="btn-cerrar" onclick="cerrarModalVoto()">Cancelar</button>
+            <div id="mensajeVoto" class="mensaje-modal"></div>
+        </div>
+    </div>
+
+    <!-- MODAL NUEVA CANDIDATA -->
+    <div id="modalCandidata" class="modal">
+        <div class="modal-content">
+            <h3>Nueva Candidata</h3>
+            <p style="color: #aaa; font-size: 0.85rem;">Sube una foto y llena los datos correspondientes.</p>
+            
+            <input type="text" id="nombreCand" placeholder="Nombre completo">
+            <input type="text" id="propuestaCand" placeholder="Propuesta">
+            <input type="text" id="dedicacionCand" placeholder="Dedicación">
+            <input type="text" id="instaCand" placeholder="Instagram">
+            
+            <label>Subir foto desde la PC:</label>
+            <input type="file" id="fotoArchivo" accept="image/*">
+            
+            <label>O pegar URL directa de imagen (.jpg, .png):</label>
+            <input type="text" id="fotoCand" placeholder="https://ejemplo.com/foto.jpg">
+
+            <button class="btn-enviar" onclick="guardarCandidata()">Guardar</button>
+            <br>
+            <button class="btn-cerrar" onclick="cerrarModalCandidata()">Cancelar</button>
+            <div id="mensajeCand" class="mensaje-modal"></div>
+        </div>
+    </div>
+
+    <script>
+        let candidataSeleccionada = "";
+
+        // Función de autenticación rápida para entrenadores/admin
+        function solicitarAccesoAdmin() {
+            const password = prompt("Ingrese la contraseña de Entrenador / Administrador:");
+            // Contraseña configurable (puedes cambiarla aquí)
+            if (password === "admin2026") {
+                document.getElementById('btnRegistrarCand').style.display = 'block';
+                alert("¡Acceso concedido! Ahora puedes ver el botón de registrar candidatas.");
+            } else if (password !== null) {
+                alert("Contraseña incorrecta.");
+            }
+        }
+
+        async function cargarCandidatas() {
+            try {
+                const respuesta = await fetch('/api/candidatas');
+                const candidatas = await respuesta.json();
+                const grid = document.getElementById('gridCandidatas');
+
+                if (!candidatas || candidatas.length === 0) {
+                    grid.innerHTML = "<p style='text-align: center; color: #aaa; grid-column: 1/-1;'>No hay candidatas registradas todavía.</p>";
+                    return;
+                }
+
+                let html = "";
+                candidatas.forEach(c => {
+                    let fotoUrl = c.foto;
+                    if (!fotoUrl || fotoUrl.includes('instagram.com') || (!fotoUrl.startsWith('http') && !fotoUrl.startsWith('data:image'))) {
+                        fotoUrl = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=500&q=80';
+                    }
+
+                    let instagramHtml = '';
+                    if (c.instagram) {
+                        let linkInsta = c.instagram.startsWith('http') ? c.instagram : `https://instagram.com/${c.instagram.replace('@', '')}`;
+                        let textoInsta = c.instagram.startsWith('http') ? 'Ver en Instagram' : c.instagram;
+                        instagramHtml = `<a href="${linkInsta}" target="_blank" class="social-tag">${textoInsta}</a>`;
+                    } else {
+                        instagramHtml = `<span class="social-tag">@missuniverso</span>`;
+                    }
+
+                    html += `
+                        <div class="card">
+                            <img src="${fotoUrl}" alt="${c.nombre}" onerror="this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=500&q=80'">
+                            <div class="card-content">
+                                <div>
+                                    <h3>${c.nombre}</h3>
+                                    ${instagramHtml}
+                                    <p>
+                                        <span style="color: #dfb347; font-size: 0.8rem;">Propuesta:</span> ${c.propuesta || 'N/A'}<br>
+                                        <span style="color: #dfb347; font-size: 0.8rem;">Dedicación:</span> ${c.dedicacion || 'N/A'}
+                                    </p>
+                                </div>
+                                <button class="btn-votar" onclick="abrirModalVoto('${c.nombre}')">Votar</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                grid.innerHTML = html;
+            } catch (error) {
+                console.error("Error cargando candidatas:", error);
+                document.getElementById('gridCandidatas').innerHTML = "<p style='text-align: center; color: #e74c3c; grid-column: 1/-1;'>Error al conectar con el servidor.</p>";
+            }
+        }
+
+        function abrirModalVoto(nombreCandidata) {
+            candidataSeleccionada = nombreCandidata;
+            document.getElementById('titulo-candidata').innerText = "Votar por: " + nombreCandidata;
+            document.getElementById('seccion-registro').style.display = 'flex';
+            document.getElementById('mensajeVoto').innerText = '';
+        }
+        function cerrarModalVoto() {
+            document.getElementById('seccion-registro').style.display = 'none';
+        }
+
+        function abrirModalCandidata() {
+            document.getElementById('modalCandidata').style.display = 'flex';
+            document.getElementById('mensajeCand').innerText = '';
+        }
+        function cerrarModalCandidata() {
+            document.getElementById('modalCandidata').style.display = 'none';
+        }
+
+        async function guardarCandidata() {
+            const nombre = document.getElementById('nombreCand').value.trim();
+            const propuesta = document.getElementById('propuestaCand').value.trim();
+            const dedicacion = document.getElementById('dedicacionCand').value.trim();
+            const instagram = document.getElementById('instaCand').value.trim();
+            const inputArchivo = document.getElementById('fotoArchivo');
+            const urlFotoInput = document.getElementById('fotoCand').value.trim();
+
+            if(!nombre) {
+                document.getElementById('mensajeCand').innerText = "El nombre es obligatorio.";
+                return;
+            }
+
+            document.getElementById('mensajeCand').innerText = "Guardando candidata en MongoDB...";
+
+            const enviarDatos = async (fotoFinal) => {
+                try {
+                    const respuesta = await fetch('/api/candidatas', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            nombre, 
+                            propuesta, 
+                            dedicacion, 
+                            foto: fotoFinal || urlFotoInput, 
+                            instagram 
+                        })
+                    });
+
+                    const resultado = await respuesta.json();
+                    if(resultado.exito) {
+                        document.getElementById('mensajeCand').innerText = "¡Candidata guardada con éxito!";
+                        setTimeout(() => {
+                            cerrarModalCandidata();
+                            document.getElementById('nombreCand').value = '';
+                            document.getElementById('propuestaCand').value = '';
+                            document.getElementById('dedicacionCand').value = '';
+                            document.getElementById('instaCand').value = '';
+                            document.getElementById('fotoArchivo').value = '';
+                            document.getElementById('fotoCand').value = '';
+                            cargarCandidatas(); 
+                        }, 1200);
+                    } else {
+                        document.getElementById('mensajeCand').innerText = "Error al guardar.";
+                    }
+                } catch (error) {
+                    document.getElementById('mensajeCand').innerText = "Error de conexión.";
+                }
+            };
+
+            if (inputArchivo.files && inputArchivo.files[0]) {
+                const reader = new FileReader();
+                reader.onloadend = function() {
+                    enviarDatos(reader.result);
+                };
+                reader.readAsDataURL(inputArchivo.files[0]);
+            } else {
+                enviarDatos(urlFotoInput);
+            }
+        }
+
+        async function enviarVoto() {
+            const nombre = document.getElementById('nombreVotante').value.trim();
+            const correo = document.getElementById('correoVotante').value.trim();
+
+            if(!nombre) {
+                document.getElementById('mensajeVoto').innerText = "Por favor escribe tu nombre.";
+                return;
+            }
+
+            try {
+                const respuesta = await fetch('/api/votos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nombre, correo, candidata: candidataSeleccionada })
+                });
+
+                const resultado = await respuesta.json();
+                if(resultado.exito) {
+                    document.getElementById('mensajeVoto').innerText = "¡Voto registrado con éxito!";
+                    setTimeout(() => {
+                        cerrarModalVoto();
+                        document.getElementById('nombreVotante').value = '';
+                        document.getElementById('correoVotante').value = '';
+                        cargarCandidatas(); 
+                    }, 1500);
+                } else {
+                    document.getElementById('mensajeVoto').innerText = resultado.mensaje || "Este correo ya ha emitido un voto.";
+                }
+            } catch (error) {
+                document.getElementById('mensajeVoto').innerText = "Error de conexión.";
+            }
+        }
+
+        async function buscarVotos() {
+            const nombreBusqueda = document.getElementById('busquedaNombre').value.trim();
+            const contenedorResultado = document.getElementById('resultadoBusqueda');
+            
+            if(!nombreBusqueda) {
+                contenedorResultado.style.display = 'none';
+                return;
+            }
+
+            contenedorResultado.style.display = 'block';
+            contenedorResultado.innerHTML = "<p style='text-align:center; color:#dfb347; font-size: 0.8rem;'>Buscando...</p>";
+
+            try {
+                const respuesta = await fetch(`/api/votos?nombre=${encodeURIComponent(nombreBusqueda)}`);
+                const votos = await respuesta.json();
+
+                if (!votos || votos.length === 0) {
+                    contenedorResultado.innerHTML = "<p style='color: #aaa; font-size: 0.75rem; text-align:center;'>No se encontraron votos.</p>";
+                    return;
+                }
+
+                let html = "<ul style='list-style: none; padding: 0; margin: 0; font-size: 0.75rem;'>";
+                votos.forEach(v => {
+                    html += `<li style='border-bottom: 1px solid #333; margin-bottom: 6px; padding-bottom: 6px;'>
+                        <strong>Votante:</strong> ${v.nombre} <br>
+                        <strong>Votó por:</strong> <span style='color: #dfb347;'>${v.candidata}</span>
+                    </li>`;
+                });
+                html += "</ul>";
+                contenedorResultado.innerHTML = html;
+            } catch (error) {
+                contenedorResultado.innerHTML = "<p style='color: #e74c3c; font-size: 0.75rem; text-align:center;'>Error en búsqueda.</p>";
+            }
+        }
+
+        window.onload = cargarCandidatas;
+    </script>
+</body>
+</html>
