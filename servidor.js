@@ -45,6 +45,9 @@ const Persona = mongoose.model('Persona', personaSchema);
 
 const path = require('path');
 
+// Esto le dice a Express que muestre las imágenes y archivos desde la raíz
+app.use(express.static(__dirname));
+
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
