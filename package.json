@@ -5,6 +5,7 @@
     "mongoose": "^9.9.3"
   },
   "scripts": {
-    "start": "node servidor.js"
+  "start": "node server.js"
+}
   }
 }
