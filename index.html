@@ -160,7 +160,6 @@
             max-width: 320px;
         }
         
-        /* Oculto por defecto para usuarios normales */
         .btn-agregar-cand {
             background: transparent;
             border: 1px solid var(--gold);
@@ -397,21 +396,6 @@
             color: #fff;
         }
         .mensaje-modal { margin-top: 15px; color: var(--gold); font-size: 0.9rem; }
-        
-        #resultadoBusqueda {
-            width: 100%;
-            max-width: 320px;
-            background: #141418;
-            border: 1px solid var(--gold);
-            border-radius: 10px;
-            padding: 10px;
-            z-index: 100;
-            max-height: 250px;
-            overflow-y: auto;
-            text-align: left;
-            display: none;
-            box-sizing: border-box;
-        }
 
         @media (min-width: 768px) {
             header {
@@ -442,12 +426,6 @@
             .buscador-esquina {
                 width: 250px;
             }
-            #resultadoBusqueda {
-                position: absolute;
-                right: 30px;
-                top: 120px;
-                width: 250px;
-            }
         }
     </style>
 </head>
@@ -466,18 +444,13 @@
         </div>
         
         <div class="acciones-derecha">
-            <!-- Botón protegido que solo aparece al autenticarse -->
             <button id="btnRegistrarCand" class="btn-agregar-cand" onclick="abrirModalCandidata()">+ Registrar Nueva Candidata</button>
-            
-            <!-- Botón discreto para entrenadores/admin -->
             <button class="admin-trigger-btn" onclick="solicitarAccesoAdmin()">🔒 Acceso Admin</button>
 
             <div class="buscador-esquina">
-                <input type="text" id="busquedaNombre" placeholder="Escribe un nombre..." onkeyup="if(event.key === 'Enter') buscarVotos()">
-                <button onclick="buscarVotos()">Buscar</button>
+                <input type="text" id="busquedaNombre" placeholder="Buscar candidata..." onkeyup="if(event.key === 'Enter') buscarCandidata()">
+                <button onclick="buscarCandidata()">Buscar</button>
             </div>
-            
-            <div id="resultadoBusqueda"></div>
         </div>
     </header>
 
@@ -528,11 +501,10 @@
 
     <script>
         let candidataSeleccionada = "";
+        let todasLasCandidatas = []; // Variable global para almacenar las candidatas y filtrarlas localmente
 
-        // Función de autenticación rápida para entrenadores/admin
         function solicitarAccesoAdmin() {
             const password = prompt("Ingrese la contraseña de Entrenador / Administrador:");
-            // Contraseña configurable (puedes cambiarla aquí)
             if (password === "admin2026") {
                 document.getElementById('btnRegistrarCand').style.display = 'block';
                 alert("¡Acceso concedido! Ahora puedes ver el botón de registrar candidatas.");
@@ -544,52 +516,72 @@
         async function cargarCandidatas() {
             try {
                 const respuesta = await fetch('/api/candidatas');
-                const candidatas = await respuesta.json();
-                const grid = document.getElementById('gridCandidatas');
-
-                if (!candidatas || candidatas.length === 0) {
-                    grid.innerHTML = "<p style='text-align: center; color: #aaa; grid-column: 1/-1;'>No hay candidatas registradas todavía.</p>";
-                    return;
-                }
-
-                let html = "";
-                candidatas.forEach(c => {
-                    let fotoUrl = c.foto;
-                    if (!fotoUrl || fotoUrl.includes('instagram.com') || (!fotoUrl.startsWith('http') && !fotoUrl.startsWith('data:image'))) {
-                        fotoUrl = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=500&q=80';
-                    }
-
-                    let instagramHtml = '';
-                    if (c.instagram) {
-                        let linkInsta = c.instagram.startsWith('http') ? c.instagram : `https://instagram.com/${c.instagram.replace('@', '')}`;
-                        let textoInsta = c.instagram.startsWith('http') ? 'Ver en Instagram' : c.instagram;
-                        instagramHtml = `<a href="${linkInsta}" target="_blank" class="social-tag">${textoInsta}</a>`;
-                    } else {
-                        instagramHtml = `<span class="social-tag">@missuniverso</span>`;
-                    }
-
-                    html += `
-                        <div class="card">
-                            <img src="${fotoUrl}" alt="${c.nombre}" onerror="this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=500&q=80'">
-                            <div class="card-content">
-                                <div>
-                                    <h3>${c.nombre}</h3>
-                                    ${instagramHtml}
-                                    <p>
-                                        <span style="color: #dfb347; font-size: 0.8rem;">Propuesta:</span> ${c.propuesta || 'N/A'}<br>
-                                        <span style="color: #dfb347; font-size: 0.8rem;">Dedicación:</span> ${c.dedicacion || 'N/A'}
-                                    </p>
-                                </div>
-                                <button class="btn-votar" onclick="abrirModalVoto('${c.nombre}')">Votar</button>
-                            </div>
-                        </div>
-                    `;
-                });
-                grid.innerHTML = html;
+                todasLasCandidatas = await respuesta.json(); // Guardamos todas aquí
+                mostrarTarjetasCandidatas(todasLasCandidatas);
             } catch (error) {
                 console.error("Error cargando candidatas:", error);
                 document.getElementById('gridCandidatas').innerHTML = "<p style='text-align: center; color: #e74c3c; grid-column: 1/-1;'>Error al conectar con el servidor.</p>";
             }
+        }
+
+        function mostrarTarjetasCandidatas(candidatas) {
+            const grid = document.getElementById('gridCandidatas');
+
+            if (!candidatas || candidatas.length === 0) {
+                grid.innerHTML = "<p style='text-align: center; color: #aaa; grid-column: 1/-1;'>No hay candidatas registradas todavía.</p>";
+                return;
+            }
+
+            let html = "";
+            candidatas.forEach(c => {
+                let fotoUrl = c.foto;
+                if (!fotoUrl || fotoUrl.includes('instagram.com') || (!fotoUrl.startsWith('http') && !fotoUrl.startsWith('data:image'))) {
+                    fotoUrl = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=500&q=80';
+                }
+
+                let instagramHtml = '';
+                if (c.instagram) {
+                    let linkInsta = c.instagram.startsWith('http') ? c.instagram : `https://instagram.com/${c.instagram.replace('@', '')}`;
+                    let textoInsta = c.instagram.startsWith('http') ? 'Ver en Instagram' : c.instagram;
+                    instagramHtml = `<a href="${linkInsta}" target="_blank" class="social-tag">${textoInsta}</a>`;
+                } else {
+                    instagramHtml = `<span class="social-tag">@missuniverso</span>`;
+                }
+
+                html += `
+                    <div class="card">
+                        <img src="${fotoUrl}" alt="${c.nombre}" onerror="this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=500&q=80'">
+                        <div class="card-content">
+                            <div>
+                                <h3>${c.nombre}</h3>
+                                ${instagramHtml}
+                                <p>
+                                    <span style="color: #dfb347; font-size: 0.8rem;">Propuesta:</span> ${c.propuesta || 'N/A'}<br>
+                                    <span style="color: #dfb347; font-size: 0.8rem;">Dedicación:</span> ${c.dedicacion || 'N/A'}
+                                </p>
+                            </div>
+                            <button class="btn-votar" onclick="abrirModalVoto('${c.nombre}')">Votar</button>
+                        </div>
+                    </div>
+                `;
+            });
+            grid.innerHTML = html;
+        }
+
+        // Búsqueda local instantánea sin fallos con el servidor
+        function buscarCandidata() {
+            const textoBusqueda = document.getElementById('busquedaNombre').value.toLowerCase().trim();
+            
+            if(!textoBusqueda) {
+                mostrarTarjetasCandidatas(todasLasCandidatas);
+                return;
+            }
+
+            const candidatasFiltradas = todasLasCandidatas.filter(c => 
+                c.nombre.toLowerCase().includes(textoBusqueda)
+            );
+
+            mostrarTarjetasCandidatas(candidatasFiltradas);
         }
 
         function abrirModalVoto(nombreCandidata) {
@@ -701,41 +693,6 @@
                 }
             } catch (error) {
                 document.getElementById('mensajeVoto').innerText = "Error de conexión.";
-            }
-        }
-
-        async function buscarVotos() {
-            const nombreBusqueda = document.getElementById('busquedaNombre').value.trim();
-            const contenedorResultado = document.getElementById('resultadoBusqueda');
-            
-            if(!nombreBusqueda) {
-                contenedorResultado.style.display = 'none';
-                return;
-            }
-
-            contenedorResultado.style.display = 'block';
-            contenedorResultado.innerHTML = "<p style='text-align:center; color:#dfb347; font-size: 0.8rem;'>Buscando...</p>";
-
-            try {
-                const respuesta = await fetch(`/api/votos?nombre=${encodeURIComponent(nombreBusqueda)}`);
-                const votos = await respuesta.json();
-
-                if (!votos || votos.length === 0) {
-                    contenedorResultado.innerHTML = "<p style='color: #aaa; font-size: 0.75rem; text-align:center;'>No se encontraron votos.</p>";
-                    return;
-                }
-
-                let html = "<ul style='list-style: none; padding: 0; margin: 0; font-size: 0.75rem;'>";
-                votos.forEach(v => {
-                    html += `<li style='border-bottom: 1px solid #333; margin-bottom: 6px; padding-bottom: 6px;'>
-                        <strong>Votante:</strong> ${v.nombre} <br>
-                        <strong>Votó por:</strong> <span style='color: #dfb347;'>${v.candidata}</span>
-                    </li>`;
-                });
-                html += "</ul>";
-                contenedorResultado.innerHTML = html;
-            } catch (error) {
-                contenedorResultado.innerHTML = "<p style='color: #e74c3c; font-size: 0.75rem; text-align:center;'>Error en búsqueda.</p>";
             }
         }
 
