@@ -43,14 +43,7 @@ const personaSchema = new mongoose.Schema({
 });
 const Persona = mongoose.model('Persona', personaSchema);
 
-const path = require('path');
-
-// Esto le dice a Express que muestre las imágenes y archivos desde la raíz
-app.use(express.static(__dirname));
-
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
+app.use(express.static('public'));
 
 // --- RUTAS DE CANDIDATAS ---
 
@@ -130,7 +123,6 @@ app.get('/api/personas', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
