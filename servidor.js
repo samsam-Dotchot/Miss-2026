@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path');
 
 const app = express();
 
@@ -43,7 +44,8 @@ const personaSchema = new mongoose.Schema({
 });
 const Persona = mongoose.model('Persona', personaSchema);
 
-app.use(express.static('public'));
+// Ruta absoluta corregida para Railway
+app.use(express.static(path.join(__dirname, 'public')));
 
 // --- RUTAS DE CANDIDATAS ---
 
