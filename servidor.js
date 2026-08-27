@@ -47,6 +47,11 @@ const Persona = mongoose.model('Persona', personaSchema);
 // Ruta absoluta corregida para Railway
 app.use(express.static(path.join(__dirname, 'public')));
 
+// --- RUTA PRINCIPAL PARA EL INDEX.HTML ---
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 // --- RUTAS DE CANDIDATAS ---
 
 app.get('/api/candidatas', async (req, res) => {
